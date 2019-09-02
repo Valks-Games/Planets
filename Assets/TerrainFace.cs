@@ -10,13 +10,17 @@ public class TerrainFace {
     Vector3 localUp;
     Vector3 axisA;
     Vector3 axisB;
+    Vector2 offset;
+    float faceSize;
 
-    public TerrainFace(ShapeGenerator shapeGenerator, Mesh mesh, int resolution, Vector3 localUp)
+    public TerrainFace(ShapeGenerator shapeGenerator, Mesh mesh, int resolution, Vector3 localUp, Vector2 offset, float faceSize)
     {
         this.shapeGenerator = shapeGenerator;
         this.mesh = mesh;
         this.resolution = resolution;
         this.localUp = localUp;
+        this.offset = offset;
+        this.faceSize = faceSize;
 
         axisA = new Vector3(localUp.y, localUp.z, localUp.x);
         axisB = Vector3.Cross(localUp, axisA);
@@ -34,9 +38,12 @@ public class TerrainFace {
             {
                 int i = x + y * resolution;
                 Vector2 percent = new Vector2(x, y) / (resolution - 1);
-                Vector3 pointOnUnitCube = localUp + (percent.x - .5f) * 2 * axisA + (percent.y - .5f) * 2 * axisB;
+
+                Vector3 pointOnUnitCube = localUp + (percent.x - offset.x) * faceSize * axisA + (percent.y - offset.y) * faceSize * axisB;
+
                 Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
-                vertices[i] = shapeGenerator.CalculatePointOnPlanet(pointOnUnitSphere);
+                vertices[i] = shapeGenerator.CalculatePointOnPlanet(pointOnUnitCube);
+                //vertices[i] = shapeGenerator.CalculatePointOnPlanet(pointOnUnitSphere);
 
                 if (x != resolution - 1 && y != resolution - 1)
                 {
@@ -51,7 +58,9 @@ public class TerrainFace {
                 }
             }
         }
+        
         mesh.Clear();
+        mesh.name = "Chunk";
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.normals = vertices;

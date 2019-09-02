@@ -1,10 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Planet : MonoBehaviour {
+public class Planet : MonoBehaviour
+{
 
-    [Range(2,256)]
+    public int subdivisions = 0;
+    public float offset = 0;
+
+    [Range(2, 256)]
     public int resolution = 10;
     public bool autoUpdate = true;
 
@@ -21,33 +23,41 @@ public class Planet : MonoBehaviour {
     [SerializeField, HideInInspector]
     MeshFilter[] meshFilters;
     TerrainFace[] terrainFaces;
-     
 
-	void Initialize()
+
+    void Initialize()
     {
         shapeGenerator = new ShapeGenerator(shapeSettings);
-
         if (meshFilters == null || meshFilters.Length == 0)
-        {
-            meshFilters = new MeshFilter[6];
-        }
-        terrainFaces = new TerrainFace[6];
+            meshFilters = new MeshFilter[6 * 4];
+        terrainFaces = new TerrainFace[6 * 4];
 
         Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
+        Vector2[] offsets = {
+            new Vector2(1, 1),
+            new Vector2(0, 1),
+            new Vector2(1, 0),
+            new Vector2(0, 0)
+        };
 
-        for (int i = 0; i < 6; i++)
+        int a = 0;
+        for (int d = 0; d < 6; d++)
         {
-            if (meshFilters[i] == null)
+            for (int i = 0; i < 4; i++)
             {
-                GameObject meshObj = new GameObject("mesh");
-                meshObj.transform.parent = transform;
+                if (meshFilters[i + a] == null)
+                {
+                    GameObject meshObj = new GameObject("Chunk");
+                    meshObj.transform.parent = transform;
 
-                meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
-                meshFilters[i] = meshObj.AddComponent<MeshFilter>();
-                meshFilters[i].sharedMesh = new Mesh();
+                    meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+                    meshFilters[i + a] = meshObj.AddComponent<MeshFilter>();
+                    meshFilters[i + a].sharedMesh = new Mesh();
+                }
+
+                terrainFaces[i + a] = new TerrainFace(shapeGenerator, meshFilters[i + a].sharedMesh, resolution, directions[d], offsets[i] - new Vector2(-offset, -offset) * 0, 1f);
             }
-
-            terrainFaces[i] = new TerrainFace(shapeGenerator, meshFilters[i].sharedMesh, resolution, directions[i]);
+            a += 4;
         }
     }
 
