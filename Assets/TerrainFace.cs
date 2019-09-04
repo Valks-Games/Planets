@@ -39,7 +39,7 @@ public class TerrainFace {
                 int i = x + y * resolution;
                 Vector2 percent = new Vector2(x, y) / (resolution - 1);
 
-                Vector3 pointOnUnitCube = localUp + (percent.x - offset.x) * faceSize * axisA + (percent.y - offset.y) * faceSize * axisB;
+                Vector3 pointOnUnitCube = localUp + (percent.x - 0.5f - offset.x) * faceSize * axisA + (percent.y - 0.5f - offset.y) * faceSize * axisB;
 
                 Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
                 vertices[i] = shapeGenerator.CalculatePointOnPlanet(pointOnUnitCube);
