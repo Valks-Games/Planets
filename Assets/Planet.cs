@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Planet : MonoBehaviour
 {
-
+    [Range(0, 1)]
     public int subdivisions = 0;
     public float testOffset = 0;
 
